@@ -1,14 +1,12 @@
 package in.mukesh.service;
 
+import in.mukesh.entity.Users;
+import in.mukesh.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import in.mukesh.entity.Users;
-import in.mukesh.repository.UserRepo;
 
 @Service
 public class UserService {
@@ -17,30 +15,28 @@ public class UserService {
     private JWTService jwtService;
 
     @Autowired
-    AuthenticationManager authManager;
+    private AuthenticationManager authManager;
 
     @Autowired
     private UserRepo repo;
-    
-    @Autowired
-	private EmailService emailService;
-    
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
+    // Register user or admin based on the role set in controller
     public Users register(Users user) {
         user.setPassword(encoder.encode(user.getPassword()));
-        repo.save(user);
-        emailService.sendRegistrationEmail(user.getEmail(), user.getUsername());
-        return user;
+        return repo.save(user);
     }
 
+    // Validate login and generate JWT
     public String verify(Users user) {
-        Authentication authentication = authManager
-                .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+
         if (authentication.isAuthenticated()) {
             return jwtService.generateToken(user.getUsername());
-        } else {
-            return "fail";
         }
+
+        return "fail";
     }
 }

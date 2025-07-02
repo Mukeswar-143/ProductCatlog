@@ -1,17 +1,21 @@
 package in.mukesh.service;
 
-import java.util.List;
+import in.mukesh.entity.ProductEntity;
+import in.mukesh.entity.ProductImage;
+import in.mukesh.repository.IProductRepo;
+import in.mukesh.repository.ProductImageRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import in.mukesh.entity.ProductEntity;
-import in.mukesh.repository.IProductRepo;
 import jakarta.transaction.Transactional;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ProductService {
@@ -19,64 +23,47 @@ public class ProductService {
     @Autowired
     private IProductRepo pRepo;
 
-    public String saveProduct(ProductEntity productEntity) {
-        pRepo.save(productEntity);
-        return "success";
-    }
+    @Autowired
+    private ProductImageRepo imageRepo;
 
-    public ProductEntity getByPid(Long pid) {
-        return pRepo.findByPid(pid);
-    }
-
-    public List<ProductEntity> getAll() {
-        return pRepo.findAll();
-    }
-
-    // public List<ProductEntity> getProducts(String category, String sortBy, String
-    // direction, Integer page, Integer size) {
-    // if (page == null || size == null) {
-    // if (category != null && !category.trim().isEmpty()) {
-    // return pRepo.findByCategoryIgnoreCase(category);
-    // } else {
-    // return pRepo.findAll();
-    // }
-    // }
-    // Sort sort = (sortBy != null && direction != null)
-    // ? Sort.by(Sort.Direction.fromString(direction), sortBy)
-    // : Sort.unsorted();
-    //
-    // Pageable pageable = PageRequest.of(page, size, sort);
-    //
-    // if (category != null && !category.trim().isEmpty()) {
-    // return pRepo.findByCategoryIgnoreCase(category, pageable).getContent();
-    // } else {
-    // return pRepo.findAll(pageable).getContent();
-    // }
-    // }
-
-    public Page<ProductEntity> getProducts(String category, String sortBy, String direction, int page, int size) {
-        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        if (category != null && !category.isEmpty()) {
-            return pRepo.findByCategoryIgnoreCase(category, pageable);
-        } else {
-            return pRepo.findAll(pageable);
-        }
-    }
-
-    public Page<ProductEntity> getAllProducts(Pageable pageable) {
-        return pRepo.findAll(pageable);
-    }
-
+    // ✅ Save product with image
     @Transactional
-    public boolean deleteProductByPid(Long pid) {
-        ProductEntity product = pRepo.findByPid(pid);
-        if (product != null) {
+    public String saveProductWithImage(ProductEntity product, MultipartFile imageFile, String uploadDir) {
+        try {
+            // Save product first
+            ProductEntity savedProduct = pRepo.save(product);
 
-            pRepo.delete(product);
-            return true;
+            // Save image to local folder
+            String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+            Path imagePath = Paths.get(uploadDir, fileName);
+            Files.copy(imageFile.getInputStream(), imagePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Create and save image entity
+            ProductImage image = new ProductImage();
+            image.setProduct(savedProduct);
+            image.setImagePath("/images/" + fileName); // Relative URL for browser access
+            imageRepo.save(image);
+
+            return "Product with image saved successfully.";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error saving product or image.";
         }
-        return false;
     }
+
+    // ✅ Get all products created by this admin (including image)
+    public List<ProductEntity> getByCreatedBy(String createdBy) {
+        List<ProductEntity> products = pRepo.findByCreatedBy(createdBy);
+
+        // Optional: Trigger lazy loading if needed
+        for (ProductEntity product : products) {
+            if (product.getImage() != null) {
+                product.getImage().getImagePath(); // ensures image is loaded
+            }
+        }
+
+        return products;
+    }
+
+   
 }

@@ -13,14 +13,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IProductRepo extends JpaRepository<ProductEntity, Long> {
 
-	public ProductEntity findByPid(Long pid);
-
-	public ProductEntity deleteByPid(Long pid);
-
-	public boolean existsByPid(Long pid);
-
 	List<ProductEntity> findByCategoryIgnoreCase(String category);
 
 	Page<ProductEntity> findByCategoryIgnoreCase(String category, Pageable pageable);
+
+	List<ProductEntity> findByCreatedBy(String createdBy);
+
 
 }

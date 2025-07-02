@@ -1,49 +1,23 @@
 package in.mukesh.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
+import jakarta.persistence.*;
 
 @Entity
-
 public class Users {
-	
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String username;
     private String password;
-	private String email;
-	private Long pnumber;
-	private String address;
+    private String email;
+    private Long pnumber;
+    private String address;
 
-    public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Long getPnumber() {
-		return pnumber;
-	}
-
-	public void setPnumber(Long pnumber) {
-		this.pnumber = pnumber;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public Long getId() {
+    private String role; // ROLE_USER or ROLE_ADMIN
+    
+    public Long getId() {
         return id;
     }
 
@@ -67,12 +41,35 @@ public class Users {
         this.password = password;
     }
 
-    @Override
-    public String toString() {
-        return "Users{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Long getPnumber() {
+        return pnumber;
+    }
+
+    public void setPnumber(Long pnumber) {
+        this.pnumber = pnumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
