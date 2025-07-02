@@ -26,44 +26,54 @@ public class ProductService {
     @Autowired
     private ProductImageRepo imageRepo;
 
-    // ✅ Save product with image
+    
     @Transactional
     public String saveProductWithImage(ProductEntity product, MultipartFile imageFile, String uploadDir) {
         try {
-            // Save product first
+            // Save product details first
             ProductEntity savedProduct = pRepo.save(product);
 
-            // Save image to local folder
-            String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+            // Generate a unique image filename
+            String originalName = imageFile.getOriginalFilename();
+            String extension = "";
+
+            if (originalName != null && originalName.contains(".")) {
+                extension = originalName.substring(originalName.lastIndexOf("."));
+            }
+
+            String fileName = UUID.randomUUID() + extension;
             Path imagePath = Paths.get(uploadDir, fileName);
+
+            // Create directories if they don't exist
+            Files.createDirectories(imagePath.getParent());
+
+            // Save image file to disk
             Files.copy(imageFile.getInputStream(), imagePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Create and save image entity
+            // Save image path in the DB
             ProductImage image = new ProductImage();
             image.setProduct(savedProduct);
-            image.setImagePath("/images/" + fileName); // Relative URL for browser access
+            image.setImagePath("/images/" + fileName); // relative path for browser
             imageRepo.save(image);
 
             return "Product with image saved successfully.";
         } catch (IOException e) {
             e.printStackTrace();
-            return "Error saving product or image.";
+            return "Failed to save product or image: " + e.getMessage();
         }
     }
 
-    // ✅ Get all products created by this admin (including image)
+   
     public List<ProductEntity> getByCreatedBy(String createdBy) {
         List<ProductEntity> products = pRepo.findByCreatedBy(createdBy);
 
-        // Optional: Trigger lazy loading if needed
+       
         for (ProductEntity product : products) {
             if (product.getImage() != null) {
-                product.getImage().getImagePath(); // ensures image is loaded
+                product.getImage().getImagePath(); // Ensures image data is fetched
             }
         }
 
         return products;
     }
-
-   
 }
