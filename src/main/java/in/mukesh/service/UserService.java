@@ -22,21 +22,38 @@ public class UserService {
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    // Register user or admin based on the role set in controller
     public Users register(Users user) {
+        if (repo.existsByUsername(user.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
+        if (repo.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException(" Email already exists");
+        }
+
+        if (repo.existsByPnumber(user.getPnumber())) {
+            throw new IllegalArgumentException(" Phone number already exists");
+        }
+
         user.setPassword(encoder.encode(user.getPassword()));
         return repo.save(user);
     }
 
-    // Validate login and generate JWT
     public String verify(Users user) {
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        try {
+            Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
+            );
 
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(user.getUsername());
+            if (authentication.isAuthenticated()) {
+                return jwtService.generateToken(user.getUsername());
+            }
+        } catch (BadCredentialsException e) {
+            return "Invalid username or password";
+        } catch (Exception e) {
+            return "Authentication failed: " + e.getMessage();
         }
 
-        return "fail";
+        return "Authentication failed";
     }
 }

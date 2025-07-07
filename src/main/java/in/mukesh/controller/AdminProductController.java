@@ -1,7 +1,9 @@
 package in.mukesh.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import in.mukesh.entity.CartItemEntity;
 import in.mukesh.entity.ProductEntity;
+import in.mukesh.repository.CartItemRepository;
 import in.mukesh.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -22,7 +24,10 @@ import java.util.List;
 public class AdminProductController {
 
     @Autowired
-    private ProductService pService;
+    private ProductService productService;
+
+    @Autowired
+    private CartItemRepository cartRepo;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -32,11 +37,13 @@ public class AdminProductController {
     @GetMapping("/products")
     public ResponseEntity<List<ProductEntity>> getProductsForAdmin() {
         String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<ProductEntity> products = pService.getByCreatedBy(adminUsername);
+        List<ProductEntity> products = productService.getByCreatedBy(adminUsername);
 
-        return products.isEmpty()
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(products);
+        if (products.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(products);
+        }
     }
 
     @GetMapping("/dashboard")
@@ -50,19 +57,16 @@ public class AdminProductController {
             @RequestPart("image") MultipartFile imageFile) {
 
         try {
-            // Deserialize product JSON to entity
             ProductEntity product = objectMapper.readValue(productJson, ProductEntity.class);
-
-            // Set createdBy to currently authenticated user
             String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             product.setCreatedBy(adminUsername);
 
-            // Ensure image directory exists
             File uploadDir = new File(IMAGE_UPLOAD_DIR);
-            if (!uploadDir.exists()) uploadDir.mkdirs();
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
 
-            // Save the product and image
-            String result = pService.saveProductWithImage(product, imageFile, IMAGE_UPLOAD_DIR);
+            String result = productService.saveProductWithImage(product, imageFile, IMAGE_UPLOAD_DIR);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
         } catch (Exception e) {
@@ -71,4 +75,17 @@ public class AdminProductController {
                     .body("Invalid product upload request. Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/carts")
+    public ResponseEntity<List<CartItemEntity>> getAllCartItems() {
+        String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<CartItemEntity> carts = productService.getAllCartItemsByAdmin(adminUsername);
+
+        if (carts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(carts);
+    }
+
 }

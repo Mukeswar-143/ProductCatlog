@@ -1,8 +1,10 @@
 package in.mukesh.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import in.mukesh.entity.CartItemEntity;
 import in.mukesh.entity.Users;
 import in.mukesh.service.UserService;
 
@@ -12,8 +14,6 @@ public class AdminController {
 
     @Autowired
     private UserService userService;
-
-    
 
     @PostMapping("/register")
     public Users registerAdmin(@RequestBody Users user) {
