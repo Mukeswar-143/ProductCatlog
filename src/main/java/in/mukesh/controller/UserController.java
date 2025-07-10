@@ -12,7 +12,7 @@ import in.mukesh.service.UserService;
 @CrossOrigin(origins = {
 		"http://localhost:3000",
 		"http://localhost:3001",
-		"https://shopverse-beta.vercel.app"
+		"https://shopverse-oubo.vercel.app"
 })
 public class UserController {
 

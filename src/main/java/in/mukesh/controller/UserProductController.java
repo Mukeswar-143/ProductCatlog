@@ -16,7 +16,7 @@ import java.util.Map;
 @CrossOrigin(origins = {
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://shopverse-beta.vercel.app"
+        "https://shopverse-oubo.vercel.app"
 })
 public class UserProductController {
 
