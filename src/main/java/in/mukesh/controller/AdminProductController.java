@@ -3,6 +3,7 @@ package in.mukesh.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.mukesh.entity.CartItemEntity;
 import in.mukesh.entity.ProductEntity;
+import in.mukesh.repository.CartItemRepository;
 import in.mukesh.service.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,12 @@ public class AdminProductController {
 
     @Autowired
     private ProductService productService;
+<<<<<<< HEAD
+=======
+
+    @Autowired
+    private CartItemRepository cartRepo;
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -55,7 +62,16 @@ public class AdminProductController {
             String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             product.setCreatedBy(adminUsername);
 
+<<<<<<< HEAD
             String result = productService.saveProductWithImage(product, imageFile);
+=======
+            File uploadDir = new File(IMAGE_UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String result = productService.saveProductWithImage(product, imageFile, IMAGE_UPLOAD_DIR);
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
         } catch (Exception e) {
@@ -76,4 +92,8 @@ public class AdminProductController {
 
         return ResponseEntity.ok(carts);
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
 }

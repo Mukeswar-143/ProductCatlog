@@ -36,7 +36,11 @@ public class SecurityConfig {
                                 "/customer/register",
                                 "/images/**" // Allow image access without authentication
                         ).permitAll()
+<<<<<<< HEAD
                         .requestMatchers("/admin/**", "/admin/carts").hasRole("ADMIN")
+=======
+                        .requestMatchers("/admin/**","/admin/carts").hasRole("ADMIN")
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
                         .requestMatchers("/customer/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )

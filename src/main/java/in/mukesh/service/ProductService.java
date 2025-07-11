@@ -19,8 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.transaction.Transactional;
 
+<<<<<<< HEAD
 import java.io.File;
 import java.io.FileOutputStream;
+=======
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -37,12 +40,15 @@ public class ProductService {
     @Autowired
     private CartItemRepository cartRepo;
 
+<<<<<<< HEAD
     @Autowired
     private AmazonS3 s3Client;
 
     @Value("${application.bucket.name}")
     private String bucketName;
 
+=======
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
     @Transactional
     public String saveProductWithImage(ProductEntity product, MultipartFile imageFile) {
         try {
@@ -79,6 +85,7 @@ public class ProductService {
         }
     }
 
+<<<<<<< HEAD
     private File convertToFile(MultipartFile multipartFile) throws IOException {
         File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + multipartFile.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convFile)) {
@@ -92,12 +99,18 @@ public class ProductService {
         return new InputStreamResource(s3Object.getObjectContent());
     }
 
+=======
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
     public List<ProductEntity> getProductsByCategory(String category) {
         return pRepo.findByCategoryIgnoreCase(category);
     }
 
     public List<ProductEntity> getByCreatedBy(String createdBy) {
         List<ProductEntity> products = pRepo.findByCreatedBy(createdBy);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
         for (ProductEntity product : products) {
             if (product.getImage() != null) {
                 product.getImage().getImagePath(); // Ensure lazy-loaded image path is initialized
@@ -108,12 +121,19 @@ public class ProductService {
 
     @Transactional
     public String addToCart(Long productId, String username, String address, String phone) {
+<<<<<<< HEAD
         ProductEntity product = pRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         if (product.getQuantity() <= 0) {
             throw new RuntimeException("Product out of stock");
         }
+=======
+        ProductEntity product = pRepo.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (product.getQuantity() <= 0)
+            throw new RuntimeException("Product out of stock");
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
 
         product.setQuantity(product.getQuantity() - 1);
         pRepo.save(product);
@@ -129,8 +149,18 @@ public class ProductService {
     }
 
     public List<CartItemEntity> getAllCartItemsByAdmin(String adminUsername) {
+<<<<<<< HEAD
         return cartRepo.findAll().stream()
                 .filter(cart -> adminUsername.equals(cart.getProduct().getCreatedBy()))
                 .toList();
     }
+=======
+        List<CartItemEntity> allCartItems = cartRepo.findAll();
+
+        return allCartItems.stream()
+                .filter(cart -> adminUsername.equals(cart.getProduct().getCreatedBy()))
+                .toList();
+    }
+
+>>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
 }
