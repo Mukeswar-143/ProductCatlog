@@ -25,7 +25,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {}) // Use @CrossOrigin on controllers or WebMvcConfigurer if needed
+                .cors(cors -> {}) // Enable global CORS settings if required
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -34,13 +34,9 @@ public class SecurityConfig {
                                 "/admins/register",
                                 "/customer/login",
                                 "/customer/register",
-                                "/images/**" // Allow image access without authentication
+                                "/images/**" // Public image access
                         ).permitAll()
-<<<<<<< HEAD
                         .requestMatchers("/admin/**", "/admin/carts").hasRole("ADMIN")
-=======
-                        .requestMatchers("/admin/**","/admin/carts").hasRole("ADMIN")
->>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
                         .requestMatchers("/customer/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
