@@ -26,7 +26,6 @@
 
     <!-- Spring Boot Starters -->
     <dependency>
-<<<<<<< HEAD
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
@@ -138,7 +137,6 @@
 
     </plugins>
   </build>
-=======
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-data-jpa</artifactId>
 </dependency>
@@ -176,6 +174,4 @@
 			</plugin>
 		</plugins>
 	</build>
->>>>>>> 8f6f04d3fbba3fca572fc7a87e375a480f85a90a
-
 </project>
