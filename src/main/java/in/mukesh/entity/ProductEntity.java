@@ -20,10 +20,21 @@ public class ProductEntity {
 	private String category;
 	private Long price;
 	private Integer quantity;
+	@Column(length  = 1500, nullable = false)
 	private String pdesc;
+	private String modelName;
+	private String color;
 
 	@Column(name = "created_by")
 	private String createdBy;
+
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
 
 	@CreationTimestamp
 	@Column(name = "created_date", updatable = false)
@@ -32,6 +43,14 @@ public class ProductEntity {
 	@UpdateTimestamp
 	@Column(name = "updated_date", insertable = false)
 	private LocalDate updatedDate;
+
+	public String getModelName() {
+		return modelName;
+	}
+
+	public String getColor() {
+		return color;
+	}
 
 	@OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonManagedReference

@@ -1,15 +1,16 @@
 package in.mukesh.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import in.mukesh.entity.CartItemEntity;
 import in.mukesh.entity.ProductEntity;
 import in.mukesh.service.ProductService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 @RestController
@@ -17,26 +18,26 @@ import java.util.List;
 @CrossOrigin(origins = {
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://shopverse-beta.vercel.app"
+        "https://shopverse-oubo.vercel.app"
 })
 public class AdminProductController {
 
     @Autowired
-    private ProductService pService;
+    private ProductService productService;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final String IMAGE_UPLOAD_DIR = System.getProperty("user.dir") + "/images";
-
     @GetMapping("/products")
     public ResponseEntity<List<ProductEntity>> getProductsForAdmin() {
         String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<ProductEntity> products = pService.getByCreatedBy(adminUsername);
+        List<ProductEntity> products = productService.getByCreatedBy(adminUsername);
 
-        return products.isEmpty()
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(products);
+        if (products.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(products);
+        }
     }
 
     @GetMapping("/dashboard")
@@ -50,19 +51,11 @@ public class AdminProductController {
             @RequestPart("image") MultipartFile imageFile) {
 
         try {
-            // Deserialize product JSON to entity
             ProductEntity product = objectMapper.readValue(productJson, ProductEntity.class);
-
-            // Set createdBy to currently authenticated user
             String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             product.setCreatedBy(adminUsername);
 
-            // Ensure image directory exists
-            File uploadDir = new File(IMAGE_UPLOAD_DIR);
-            if (!uploadDir.exists()) uploadDir.mkdirs();
-
-            // Save the product and image
-            String result = pService.saveProductWithImage(product, imageFile, IMAGE_UPLOAD_DIR);
+            String result = productService.saveProductWithImage(product, imageFile);
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
         } catch (Exception e) {
@@ -70,5 +63,17 @@ public class AdminProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Invalid product upload request. Error: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/carts")
+    public ResponseEntity<List<CartItemEntity>> getAllCartItems() {
+        String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<CartItemEntity> carts = productService.getAllCartItemsByAdmin(adminUsername);
+
+        if (carts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(carts);
     }
 }
