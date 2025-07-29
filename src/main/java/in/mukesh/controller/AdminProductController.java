@@ -25,7 +25,7 @@ public class AdminProductController {
     private ProductService productService;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMappe objectMapper;
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductEntity>> getProductsForAdmin() {
